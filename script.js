@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    const API_KEY = "4273da0ae67b824c6d417b030c59b6f0";
+    const API_KEY = "e72eb7a1085e23048af906386ec342d3";
     var searchHistory = [];
     //Today's date using dayjs
     const currentDay = dayjs().format('dddd, MMMM D');
@@ -93,19 +93,26 @@ $(document).ready(function () {
 
     //API call for 5-day forecast. Takes the lat/lon from current weather call
     const fiveDay = (lon, lat) => {
-        let fiveQueryURL = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=imperial&appid=${API_KEY}`
+        let fiveQueryURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${API_KEY}`
         $.ajax({
             url: fiveQueryURL,
             method: 'GET',
         }).then(function (fiveResponse) {
+            var days = [];
+            for (var i = 0; i < fiveResponse.list.length; i++) {
+                var item = fiveResponse.list[i];
+                if (item.dt_txt.includes('12:00:00')) {
+                    days.push(item)
+                }
+            }
             //Loop through forecast starting with tomorrow
-            for (var k = 1; k < 6; k++) {
+            for (var k = 0; k < 5; k++) {
                 //Display image in card
-                $(`#${k}img`).attr('src', `https://openweathermap.org/img/wn/${fiveResponse.daily[k].weather[0].icon}@2x.png`);
+                $(`#img${k}`).attr('src', `https://openweathermap.org/img/wn/${days[k].weather[0].icon}@2x.png`);
                 //Display temp in card
-                $(`#${k}temp`).html(`Temp: ${fiveResponse.daily[k].temp.day} &#8457;`);
+                $(`#temp${k}`).html(`Temp: ${days[k].main.temp} &#8457;`);
                 //Displays humidity in card
-                $(`#${k}humid`).html(`Humidity: ${fiveResponse.daily[k].humidity}%`);
+                $(`#humid${k}`).html(`Humidity: ${days[k].main.humidity}%`);
             }
         });
     };
